@@ -1,0 +1,33 @@
+{
+  "name": "@jmo/admin-api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/app.ts"
+  },
+  "scripts": {
+    "dev": "tsx watch --env-file-if-exists=../../.env src/node.ts",
+    "start": "tsx --env-file-if-exists=../../.env src/node.ts",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@hono/node-server": "2.1.3",
+    "@jmo/ai": "workspace:*",
+    "@jmo/config": "workspace:*",
+    "@jmo/db": "workspace:*",
+    "@jmo/server": "workspace:*",
+    "@jmo/shared": "workspace:*",
+    "@jmo/vault": "workspace:*",
+    "hono": "4.13.12",
+    "jose": "6.2.12",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@jmo/api": "workspace:*",
+    "@jmo/evidence": "workspace:*",
+    "@jmo/job-extraction": "workspace:*",
+    "@jmo/resume": "workspace:*",
+    "@jmo/scoring": "workspace:*"
+  }
+}

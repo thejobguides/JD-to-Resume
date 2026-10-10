@@ -1,0 +1,15 @@
+@import 'tailwindcss';
+
+body {
+  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+.prose-legal h2 {
+  @apply mt-6 mb-2 text-lg font-semibold;
+}
+.prose-legal p,
+.prose-legal li {
+  @apply text-sm leading-6 text-slate-700;
+}
+.prose-legal ul {
+  @apply list-disc space-y-1 pl-5;
+}

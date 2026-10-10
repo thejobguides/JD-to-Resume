@@ -1,0 +1,42 @@
+{
+  "name": "job-match-optimizer",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.28.2",
+  "engines": {
+    "node": ">=20.11"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "pnpm -r --parallel --if-present typecheck",
+    "build": "pnpm -r --if-present build",
+    "db:up": "docker compose up -d db",
+    "db:down": "docker compose down",
+    "db:migrate": "pnpm --filter @jmo/db migrate",
+    "db:seed": "pnpm --filter @jmo/db seed",
+    "dev:api": "pnpm --filter @jmo/api dev",
+    "dev:admin-api": "pnpm --filter @jmo/admin-api dev",
+    "dev:admin": "pnpm --filter @jmo/admin dev",
+    "dev:web": "pnpm --filter @jmo/web dev",
+    "dev:extension": "pnpm --filter @jmo/extension dev",
+    "build:extension": "pnpm --filter @jmo/extension build",
+    "build:extension:dev": "pnpm --filter @jmo/extension build:dev",
+    "e2e": "pnpm --filter @jmo/extension e2e",
+    "e2e:live": "pnpm --filter @jmo/extension e2e:live",
+    "start:api": "pnpm --filter @jmo/api start",
+    "start:admin-api": "pnpm --filter @jmo/admin-api start",
+    "db:reset": "pnpm --filter @jmo/db reset",
+    "nvidia:setup": "pnpm --filter @jmo/api exec tsx --env-file-if-exists=../../.env src/scripts/eval-setup.ts --provider nvidia",
+    "openrouter:setup": "pnpm --filter @jmo/api exec tsx --env-file-if-exists=../../.env src/scripts/eval-setup.ts --provider openrouter",
+    "stripe:setup": "pnpm --filter @jmo/api exec tsx --env-file-if-exists=../../.env src/scripts/stripe-setup.ts"
+  },
+  "devDependencies": {
+    "@jmo/db": "workspace:*",
+    "@playwright/test": "1.63.0",
+    "@types/node": "26.6.3",
+    "tsx": "4.23.15",
+    "typescript": "6.0.3",
+    "vitest": "5.0.2"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "name": "@jmo/server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./dev-keys": "./src/dev-keys.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@jmo/ai": "workspace:*",
+    "@jmo/config": "workspace:*",
+    "@jmo/db": "workspace:*",
+    "@jmo/evidence": "workspace:*",
+    "@jmo/job-extraction": "workspace:*",
+    "@jmo/scoring": "workspace:*",
+    "@jmo/shared": "workspace:*",
+    "@jmo/vault": "workspace:*",
+    "jose": "6.2.12",
+    "@jmo/resume": "workspace:*"
+  }
+}

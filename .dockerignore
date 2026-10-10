@@ -1,0 +1,9 @@
+**/node_modules
+**/dist
+**/dist-dev
+.e2e
+.dev
+.env
+research
+test-results
+playwright-report

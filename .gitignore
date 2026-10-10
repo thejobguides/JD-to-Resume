@@ -1,0 +1,22 @@
+node_modules/
+dist/
+.output/
+.wxt/
+.turbo/
+coverage/
+*.log
+.env
+.env.*
+!.env.example
+.dev.vars
+.wrangler/
+playwright-report/
+test-results/
+.DS_Store
+.dev/
+
+# Extension builds and E2E artifacts
+dist-dev/
+.e2e/
+test-results/
+playwright-report/

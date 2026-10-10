@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      db:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: jmo
+          POSTGRES_PASSWORD: jmo
+          POSTGRES_DB: jmo
+        ports: ['54329:5432']
+        options: >-
+          --health-cmd "pg_isready -U jmo" --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm test
+      - name: Build apps
+        run: pnpm --filter @jmo/admin build && pnpm --filter @jmo/web build && pnpm --filter @jmo/extension build
+      - name: Install Chromium for E2E
+        run: pnpm --filter @jmo/extension exec playwright install --with-deps chromium chromium-headless-shell
+      - name: End-to-end (extension + admin, mock AI, fake Stripe)
+        run: pnpm e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-traces
+          path: apps/extension/test-results

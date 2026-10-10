@@ -1,0 +1,21 @@
+{
+  "name": "@jmo/db",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "migrate": "tsx --env-file-if-exists=../../.env src/cli.ts migrate",
+    "seed": "tsx --env-file-if-exists=../../.env src/cli.ts seed",
+    "reset": "tsx --env-file-if-exists=../../.env src/cli.ts reset"
+  },
+  "dependencies": {
+    "@jmo/ai": "workspace:*",
+    "@jmo/shared": "workspace:*",
+    "postgres": "3.4.9",
+    "@jmo/config": "workspace:*"
+  }
+}
