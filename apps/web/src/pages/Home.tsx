@@ -6,9 +6,22 @@ const STORE = import.meta.env.VITE_CHROME_STORE_URL;
 
 export function HomePage() {
   const [plans, setPlans] = useState<PublicPlan[] | null>(null);
+  const [slow, setSlow] = useState(false);
   useEffect(() => {
-    fetchPlans().then((r) => setPlans(r.plans)).catch(() => setPlans([]));
+    // The API sleeps when idle on the free hosting plan and takes up to a minute to answer the first request; say so
+    // instead of showing an empty section, and retry once if that first request fails while it starts.
+    let live = true;
+    const slowTimer = setTimeout(() => live && setSlow(true), 3_000);
+    fetchPlans()
+      .catch(() => new Promise<Awaited<ReturnType<typeof fetchPlans>>>((ok, fail) => setTimeout(() => fetchPlans().then(ok, fail), 5_000)))
+      .then((r) => live && setPlans(r.plans))
+      .catch(() => live && setPlans([]))
+      .finally(() => clearTimeout(slowTimer));
     if (location.hash === '#pricing') setTimeout(() => document.getElementById('pricing')?.scrollIntoView(), 50);
+    return () => {
+      live = false;
+      clearTimeout(slowTimer);
+    };
   }, []);
   return (
     <>
@@ -61,7 +74,12 @@ export function HomePage() {
               </ul>
             </div>
           ))}
-          {plans?.length === 0 && <p className="text-sm text-slate-500">Pricing is unavailable right now.</p>}
+          {plans === null && (
+            <p role="status" className="text-sm text-slate-500">
+              {slow ? 'Loading prices… the server is waking up after being idle, which can take up to a minute.' : 'Loading prices…'}
+            </p>
+          )}
+          {plans?.length === 0 && <p className="text-sm text-slate-500">Pricing is unavailable right now. Please reload the page in a minute.</p>}
         </div>
         <p className="mt-6 text-sm text-slate-600">Already subscribed? <Link to="/account" className="text-indigo-700 underline">Manage your account</Link>.</p>
       </section>

@@ -45,12 +45,18 @@ export class AuthService {
       const [u] = await this.sql`SELECT 1 FROM users WHERE email = ${email}`;
       if (!u) throw new ApiError('maintenance', 'New sign-ups are temporarily paused.');
     }
-    const n = (await this.sql<Array<{ n: number }>>`
-      SELECT count(*)::int AS n FROM auth_verifications WHERE identifier = ${email} AND created_at > now() - interval '1 hour'`)[0]!.n;
-    if (n >= cfg.limits.otp_per_hour) throw new ApiError('rate_limited', 'Too many codes requested. Try again later.', { retry_after_s: 3600 });
     const code = randomOtp();
-    await this.sql`INSERT INTO auth_verifications (id, identifier, code_hash, expires_at)
-                   VALUES (${uuidv7()}, ${email}, ${await saltedHash(`${email}:${code}`, this.secret)}, ${new Date(Date.now() + OTP_TTL_MS)})`;
+    const codeHash = await saltedHash(`${email}:${code}`, this.secret);
+    // Count and insert under a per-address lock: concurrent requests (repeated clicks while a sleeping server wakes up)
+    // used to all pass the count before any insert, sending more codes than the hourly limit allows.
+    const allowed = await this.sql.begin(async (tx) => {
+      await tx`SELECT pg_advisory_xact_lock(hashtext(${`otp:${email}`}))`;
+      const [row] = await tx<Array<{ n: number }>>`SELECT count(*)::int AS n FROM auth_verifications WHERE identifier = ${email} AND created_at > now() - interval '1 hour'`;
+      if (row!.n >= cfg.limits.otp_per_hour) return false;
+      await tx`INSERT INTO auth_verifications (id, identifier, code_hash, expires_at) VALUES (${uuidv7()}, ${email}, ${codeHash}, ${new Date(Date.now() + OTP_TTL_MS)})`;
+      return true;
+    });
+    if (!allowed) throw new ApiError('rate_limited', 'Too many codes requested. Try again later.', { retry_after_s: 3600 });
     try {
       await this.mailer.send(email, 'Your sign-in code', `Your Job Match Optimizer sign-in code is ${code}. It expires in 10 minutes.\n\nIf you didn't request it, ignore this email.`);
     } catch (e) {

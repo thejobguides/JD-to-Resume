@@ -170,6 +170,17 @@ describe.skipIf(!up)('Public API routes (Postgres)', () => {
     expect((await errorOf(sixth)).message).toMatch(/Too many codes/);
   });
 
+  it('the hourly code limit holds when many requests for one address arrive at once', async () => {
+    // Seen live: a "Send code" button clicked repeatedly while the server woke up sent 7 requests in one second, and
+    // all of them passed the count before any insert.
+    const email = 'burst@example.org';
+    resetRateLimits();
+    const results = await Promise.all(Array.from({ length: 8 }, () => json('POST', '/v1/auth/otp/request', { email })));
+    expect(results.filter((r) => r.status === 200)).toHaveLength(5);
+    expect(results.filter((r) => r.status === 429)).toHaveLength(3);
+    expect((await sql`SELECT count(*)::int AS n FROM auth_verifications WHERE identifier = ${email}`)[0]!.n).toBe(5);
+  });
+
   it('sessions: bad tokens, logout of one device, logout everywhere, refresh after logout', async () => {
     expect((await errorOf(await app.request('/v1/me'))).code).toBe('unauthenticated');
     expect((await app.request('/v1/me', { headers: auth('not-a-jwt') })).status).toBe(401);

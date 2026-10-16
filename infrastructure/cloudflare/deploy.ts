@@ -145,8 +145,9 @@ async function db(env: Env) {
   } finally {
     await sql.end();
   }
-  // Same script as local development; it refuses live keys, so live prices go through Admin → Plans & pricing.
-  run('pnpm', ['stripe:setup'], { DATABASE_URL: env.DATABASE_URL!, STRIPE_SECRET_KEY: env.STRIPE_SECRET_KEY! });
+  // Same script as `pnpm stripe:setup`, but with only these values (not the local .env). It refuses live keys, so
+  // live prices go through Admin → Plans & pricing.
+  run('pnpm', ['--filter', '@jmo/api', 'exec', 'tsx', 'src/scripts/stripe-setup.ts'], { DATABASE_URL: env.DATABASE_URL!, STRIPE_SECRET_KEY: env.STRIPE_SECRET_KEY! });
 }
 
 async function stripeWebhook(env: Env, apiUrl: string) {

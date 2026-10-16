@@ -18,6 +18,14 @@ function SignIn({ onDone }: { onDone: () => void }) {
   const [devCode, setDevCode] = useState<string | null>(null);
   const [error, setError] = useState<unknown>(null);
   const [busy, setBusy] = useState(false);
+  // A ref, not just state: a held Enter key submits again before React re-renders the disabled button.
+  const inFlight = useRef(false);
+  const [slow, setSlow] = useState(false);
+  useEffect(() => {
+    if (!busy) return setSlow(false);
+    const t = setTimeout(() => setSlow(true), 4_000);
+    return () => clearTimeout(t);
+  }, [busy]);
   return (
     <div className="mx-auto max-w-sm">
       <h1 className="mb-1 text-2xl font-semibold">Your account</h1>
@@ -36,6 +44,8 @@ function SignIn({ onDone }: { onDone: () => void }) {
         className="space-y-3"
         onSubmit={async (e) => {
           e.preventDefault();
+          if (inFlight.current) return;
+          inFlight.current = true;
           setBusy(true);
           setError(null);
           try {
@@ -50,6 +60,7 @@ function SignIn({ onDone }: { onDone: () => void }) {
           } catch (err) {
             setError(err);
           } finally {
+            inFlight.current = false;
             setBusy(false);
           }
         }}
@@ -62,7 +73,9 @@ function SignIn({ onDone }: { onDone: () => void }) {
           </>
         )}
         <ErrorText error={error} />
-        <Button type="submit" disabled={busy || (sent && code.length !== 6)}>{sent ? 'Sign in' : 'Send code'}</Button>
+        <Button type="submit" disabled={busy || (sent && code.length !== 6)}>{busy ? (sent ? 'Signing in…' : 'Sending…') : sent ? 'Sign in' : 'Send code'}</Button>
+        {sent && !devCode && <p className="text-xs text-slate-500">Check your email. If several codes arrived, use the newest one.</p>}
+        {slow && <p role="status" className="text-xs text-slate-500">The server is waking up after being idle. This can take up to a minute; please wait.</p>}
       </form>
     </div>
   );
