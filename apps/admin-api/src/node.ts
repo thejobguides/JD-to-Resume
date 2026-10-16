@@ -30,5 +30,6 @@ const app = createAdminApp({
     return r.json();
   },
 });
-const port = Number(vars.ADMIN_API_PORT ?? 8788);
+// PORT: hosts such as Render tell the service where to listen.
+const port = Number(vars.ADMIN_API_PORT ?? vars.PORT ?? 8788);
 serve({ fetch: app.fetch, port }, () => console.log(`Admin API listening on http://localhost:${port}`));

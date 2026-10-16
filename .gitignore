@@ -20,3 +20,6 @@ dist-dev/
 .e2e/
 test-results/
 playwright-report/
+
+# Extension zips built by pnpm deploy:cloudflare
+apps/extension/release/

@@ -22,10 +22,11 @@ function configPublicKey(env: Record<string, string>): string {
 
 // Development builds use a fixed public key so the unpacked extension always gets the same ID
 // (hbbojlpbahndpodjekcjheebjlhjiobd). Google sign-in needs that ID in its redirect URL. Store builds get their
-// ID from the Chrome Web Store instead.
+// ID from the Chrome Web Store instead; a production build shared outside the store (EXTENSION_KEY) gets a fixed ID
+// so the API can allow it in EXTENSION_ORIGINS.
 const DEV_KEY = readFileSync(resolve(here, 'dev-extension-key.txt'), 'utf8').trim();
 
-function manifest(mode: string, apiUrl: string, e2e: boolean): Plugin {
+function manifest(mode: string, apiUrl: string, e2e: boolean, key: string): Plugin {
   const dev = mode === 'development';
   return {
     name: 'jmo-manifest',
@@ -35,7 +36,7 @@ function manifest(mode: string, apiUrl: string, e2e: boolean): Plugin {
         name: dev ? 'Job Match Optimizer (dev)' : 'Job Match Optimizer',
         description: 'Tailor your resume to a job posting without inventing anything. Your resume stays on your device.',
         version: pkg.version,
-        ...(dev ? { key: DEV_KEY } : {}),
+        ...(dev ? { key: DEV_KEY } : key ? { key } : {}),
         // Ed25519 in WebCrypto (signed config) needs Chrome 137+.
         minimum_chrome_version: '138',
         icons: { 16: 'icons/icon-16.png', 32: 'icons/icon-32.png', 48: 'icons/icon-48.png', 128: 'icons/icon-128.png' },
@@ -63,7 +64,7 @@ export default defineConfig(({ mode }) => {
   const apiUrl = env.EXTENSION_API_URL || (mode === 'development' ? 'http://localhost:8787' : 'https://api.jobmatch.example');
   const webUrl = env.EXTENSION_WEB_URL || (mode === 'development' ? 'http://localhost:5175' : 'https://jobmatch.example');
   return {
-    plugins: [react(), tailwind(), manifest(mode, apiUrl, env.EXTENSION_E2E === '1')],
+    plugins: [react(), tailwind(), manifest(mode, apiUrl, env.EXTENSION_E2E === '1', env.EXTENSION_KEY ?? '')],
     define: {
       __API_URL__: JSON.stringify(apiUrl),
       __WEB_URL__: JSON.stringify(webUrl),

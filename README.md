@@ -94,10 +94,19 @@ Users can turn on “Help improve Job Match Optimizer” in the extension (Priva
 
 ## Deploying
 
-- **API and admin API:** `infrastructure/docker/Dockerfile` builds one image per service (`--build-arg APP=api` or `APP=admin-api`). Run `pnpm db:migrate` as a release step. In production, the API refuses to start unless `JWT_SECRET` (not the development placeholder), `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `RESEND_API_KEY`, `INTERNAL_TOKEN`, `MAILBOX_KEY` and `CONTENT_ENCRYPTION_KEY` (32+ characters each, separate secrets) are set, plus `CONFIG_SIGNING_PRIVATE_KEY_JWK` for the public API. It also needs the vault keys (`pnpm --filter @jmo/vault keygen`), `DATABASE_URL`, `WEB_ORIGIN`, `ADMIN_ORIGIN` and `EXTENSION_ORIGINS=chrome-extension://<id>`. Put the admin panel and admin API behind Cloudflare Access (`CF_ACCESS_TEAM_DOMAIN`, `CF_ACCESS_AUD`).
-- **Extension:** run `pnpm build:extension` with `EXTENSION_API_URL`, `EXTENSION_WEB_URL` and `CONFIG_PUBLIC_KEY_JWK` set, then zip `apps/extension/dist` for the Chrome Web Store.
-- **Website and admin panel:** static builds (`pnpm --filter @jmo/web build`, `pnpm --filter @jmo/admin build`) with `VITE_API_URL` and `VITE_ADMIN_API_URL`. The builds carry a Content Security Policy meta tag for those API origins, and `public/_headers` sets anti-framing and other security headers on Cloudflare Pages.
-- **Stripe webhook:** add an endpoint at `https://<api>/v1/webhooks/stripe` (Developers → Webhooks) for `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `customer.subscription.created|updated|deleted` and `charge.refunded`, and set its signing secret as `STRIPE_WEBHOOK_SECRET`.
+`pnpm deploy:prod` (`infrastructure/cloudflare/deploy.ts`) does the whole release; its header lists the steps.
+
+1. `pnpm deploy:prod init` creates `.env.production` (git-ignored, never share it) with generated secrets and the keys copied from `.env`. It lists what is still missing: `WORKERS_SUBDOMAIN`, `DATABASE_URL` (or `PROD_DATABASE_URL` in `.env`, e.g. a free Neon database), `EMAIL_FROM`, `ADMIN_OWNER_EMAIL`, `OPENAI_API_KEY` and, for Render, `RENDER_API_KEY`. Keep the generated values: new ones sign everyone out and make stored data unreadable.
+2. `pnpm deploy:prod db` migrates and seeds the database and creates the Stripe test prices.
+3. Push to GitHub, then `pnpm deploy:prod deploy`: the two APIs (Render free web services built from the repo, or Cloudflare Containers with `API_HOST=cloudflare`), the Stripe webhook, then the website and admin panel as static Workers on Cloudflare (`wrangler login` once; wrangler needs Node 22+).
+4. `pnpm deploy:prod extension` builds the extension for the deployed API with a fixed ID (`EXTENSION_KEY`) and zips it in `apps/extension/release/`.
+
+Render's free services sleep after 15 idle minutes; the first request after that takes about a minute.
+
+- **API and admin API:** `infrastructure/docker/Dockerfile` builds one image for both; `APP=api` or `APP=admin-api` picks the service and the server listens on `PORT` when the host sets it. In production, the API refuses to start unless `JWT_SECRET` (not the development placeholder), `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `RESEND_API_KEY`, `INTERNAL_TOKEN`, `MAILBOX_KEY` and `CONTENT_ENCRYPTION_KEY` (32+ characters each, separate secrets) are set, plus `CONFIG_SIGNING_PRIVATE_KEY_JWK` for the public API. It also needs the vault keys (`pnpm --filter @jmo/vault keygen`), `DATABASE_URL`, `WEB_ORIGIN`, `ADMIN_ORIGIN` and `EXTENSION_ORIGINS=chrome-extension://<id>`. Put the admin panel and admin API behind Cloudflare Access (`CF_ACCESS_TEAM_DOMAIN`, `CF_ACCESS_AUD`).
+- **Extension:** `pnpm build:extension` with `EXTENSION_API_URL`, `EXTENSION_WEB_URL` and `CONFIG_PUBLIC_KEY_JWK` set (and `EXTENSION_KEY` for a fixed ID outside the Chrome Web Store), then zip `apps/extension/dist`.
+- **Website and admin panel:** static builds (`pnpm --filter @jmo/web build`, `pnpm --filter @jmo/admin build`) with `VITE_API_URL` and `VITE_ADMIN_API_URL`. The builds carry a Content Security Policy meta tag for those API origins, and `public/_headers` sets anti-framing and other security headers on Cloudflare.
+- **Stripe webhook:** the deploy script creates it. By hand: an endpoint at `https://<api>/v1/webhooks/stripe` (Developers → Webhooks) for `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `customer.subscription.created|updated|deleted` and `charge.refunded`, with its signing secret as `STRIPE_WEBHOOK_SECRET`.
 
 ## Where the code differs from the research docs
 

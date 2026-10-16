@@ -38,11 +38,16 @@ export function setSession(s: Session | null) {
 }
 
 async function raw(method: string, path: string, body?: unknown): Promise<Response> {
-  return fetch(`${API}${path}`, {
-    method,
-    headers: { 'content-type': 'application/json', ...(session ? { authorization: `Bearer ${session.access_token}` } : {}) },
-    ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
-  });
+  try {
+    return await fetch(`${API}${path}`, {
+      method,
+      headers: { 'content-type': 'application/json', ...(session ? { authorization: `Bearer ${session.access_token}` } : {}) },
+      ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
+    });
+  } catch {
+    // The browser says only "Failed to fetch" for a network error, an unreachable host or a refused CORS check.
+    throw new ApiFailure(0, 'unreachable', 'We can’t reach our servers right now. Check your connection and try again in a few minutes.');
+  }
 }
 
 /**

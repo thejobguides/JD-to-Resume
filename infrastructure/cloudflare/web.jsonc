@@ -1,0 +1,8 @@
+// Website: static files on Workers (apps/web/public/_headers applies). Built and deployed by `pnpm deploy:prod`.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "jmo-web",
+  "compatibility_date": "2026-10-01",
+  "workers_dev": true,
+  "assets": { "directory": "../../apps/web/dist", "not_found_handling": "single-page-application" }
+}

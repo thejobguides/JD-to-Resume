@@ -29,7 +29,8 @@
     "db:reset": "pnpm --filter @jmo/db reset",
     "nvidia:setup": "pnpm --filter @jmo/api exec tsx --env-file-if-exists=../../.env src/scripts/eval-setup.ts --provider nvidia",
     "openrouter:setup": "pnpm --filter @jmo/api exec tsx --env-file-if-exists=../../.env src/scripts/eval-setup.ts --provider openrouter",
-    "stripe:setup": "pnpm --filter @jmo/api exec tsx --env-file-if-exists=../../.env src/scripts/stripe-setup.ts"
+    "stripe:setup": "pnpm --filter @jmo/api exec tsx --env-file-if-exists=../../.env src/scripts/stripe-setup.ts",
+    "deploy:prod": "tsx infrastructure/cloudflare/deploy.ts"
   },
   "devDependencies": {
     "@jmo/db": "workspace:*",

@@ -1,0 +1,18 @@
+{
+  "name": "@jmo/cloudflare",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "release": "tsx deploy.ts"
+  },
+  "dependencies": {
+    "@jmo/config": "workspace:*",
+    "@jmo/db": "workspace:*",
+    "@jmo/vault": "workspace:*"
+  },
+  "devDependencies": {
+    "@cloudflare/containers": "0.3.7",
+    "wrangler": "4.149.0"
+  }
+}

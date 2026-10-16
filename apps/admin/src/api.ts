@@ -52,11 +52,16 @@ export function registerStepUp(fn: () => Promise<void>) {
 }
 
 async function raw(method: string, path: string, body?: unknown, auth = true): Promise<Response> {
-  return fetch(`${BASE}/admin/v1${path}`, {
-    method,
-    headers: { 'content-type': 'application/json', ...(auth && session ? { authorization: `Bearer ${session.access_token}` } : {}) },
-    ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
-  });
+  try {
+    return await fetch(`${BASE}/admin/v1${path}`, {
+      method,
+      headers: { 'content-type': 'application/json', ...(auth && session ? { authorization: `Bearer ${session.access_token}` } : {}) },
+      ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
+    });
+  } catch {
+    // The browser says only "Failed to fetch" for a network error, an unreachable host or a refused CORS check.
+    throw new AdminApiError(0, 'unreachable', `Can't reach the admin API (${BASE}). Check your connection; if this keeps happening, the service is down.`);
+  }
 }
 
 /**

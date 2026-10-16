@@ -26,7 +26,8 @@ if (env.ENV !== 'production') {
 }
 
 const app = createApp(services);
-const port = Number(vars.API_PORT ?? 8787);
+// PORT: hosts such as Render tell the service where to listen.
+const port = Number(vars.API_PORT ?? vars.PORT ?? 8787);
 serve({ fetch: app.fetch, port }, () => {
   console.log(`API listening on http://localhost:${port} (env=${env.ENV}, payments=${services.billing.mode}, ai=${env.OPENAI_API_KEY ? 'openai' : 'mock'})`);
 });

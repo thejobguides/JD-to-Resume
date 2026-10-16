@@ -1,0 +1,23 @@
+// Public API: a Worker in front of one Cloudflare Container (Workers Paid plan). Deploy with `pnpm deploy:prod`,
+// which adds the addresses as vars and uploads the secrets from .env.production.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "jmo-api",
+  "main": "containers.ts",
+  "compatibility_date": "2026-10-01",
+  "workers_dev": true,
+  "observability": { "enabled": true },
+  "containers": [
+    {
+      "class_name": "ApiContainer",
+      "image": "../docker/Dockerfile",
+      "image_build_context": "../..",
+      "image_vars": { "APP": "api" },
+      "instance_type": "basic",
+      "max_instances": 1
+    }
+  ],
+  "durable_objects": { "bindings": [{ "name": "APP", "class_name": "ApiContainer" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["ApiContainer"] }],
+  "triggers": { "crons": ["0 */6 * * *"] }
+}
