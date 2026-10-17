@@ -30,6 +30,12 @@ export interface ServerEnv {
   ADMIN_DEV_LOGIN: boolean;
   CF_ACCESS_TEAM_DOMAIN?: string;
   CF_ACCESS_AUD?: string;
+  /**
+   * Production only: let the admin API run without Cloudflare Access, for hosting where Access can't sit in front of
+   * it. Admins are then protected by emailed sign-in codes, step-up re-authentication and the audit log alone.
+   * Off unless exactly "true".
+   */
+  ADMIN_ALLOW_WITHOUT_ACCESS: boolean;
   INTERNAL_TOKEN: string; // admin-api → api service-binding substitute on Node
   /** OAuth client IDs whose Google ID tokens we accept (one Web client serves the extension and the website). */
   GOOGLE_OAUTH_CLIENT_IDS: string[];
@@ -99,6 +105,7 @@ export function loadEnv(raw: Record<string, string | undefined>): ServerEnv {
     ADMIN_DEV_LOGIN: env !== 'production' && src.ADMIN_DEV_LOGIN !== 'false',
     ...(src.CF_ACCESS_TEAM_DOMAIN ? { CF_ACCESS_TEAM_DOMAIN: src.CF_ACCESS_TEAM_DOMAIN } : {}),
     ...(src.CF_ACCESS_AUD ? { CF_ACCESS_AUD: src.CF_ACCESS_AUD } : {}),
+    ADMIN_ALLOW_WITHOUT_ACCESS: src.ADMIN_ALLOW_WITHOUT_ACCESS === 'true',
     AI_ROUTING_ENV: src.AI_ROUTING === 'eval' ? 'eval' : 'production',
     GOOGLE_OAUTH_CLIENT_IDS: (src.GOOGLE_OAUTH_CLIENT_ID ?? '').split(',').map((s) => s.trim()).filter(Boolean),
     ...(env !== 'production' && src.GOOGLE_ISSUER_OVERRIDE ? { GOOGLE_ISSUER_OVERRIDE: src.GOOGLE_ISSUER_OVERRIDE } : {}),

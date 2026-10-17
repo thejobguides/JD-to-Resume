@@ -14,6 +14,9 @@ if (vars.NODE_ENV !== 'production') {
 }
 delete vars.VAULT_PRIVATE_KEY_JWK;
 const env = loadEnv(vars);
+if (env.ENV === 'production' && !(env.CF_ACCESS_TEAM_DOMAIN && env.CF_ACCESS_AUD) && env.ADMIN_ALLOW_WITHOUT_ACCESS) {
+  console.warn('[security] Admin API is running WITHOUT Cloudflare Access (ADMIN_ALLOW_WITHOUT_ACCESS=true): admins are protected by emailed sign-in codes, step-up and the audit log only.');
+}
 const sql = createSql(env.DATABASE_URL);
 const mailer = env.RESEND_API_KEY ? resendMailer(env.RESEND_API_KEY, env.EMAIL_FROM) : consoleMailer();
 const payments = env.STRIPE_SECRET_KEY ? stripeClient(env.STRIPE_SECRET_KEY, { webOrigin: env.WEB_ORIGIN }) : fakeStripe(env.WEB_ORIGIN);

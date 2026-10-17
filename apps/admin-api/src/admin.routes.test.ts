@@ -24,6 +24,7 @@ describe.skipIf(!up)('Admin API routes (Postgres)', () => {
   let admin: ReturnType<typeof createAdminApp>;
   let vaultPublic: JsonWebKey;
   let owner = '';
+  let adminEnvForTests: ReturnType<typeof loadEnv>;
   const payments: Array<{ method: string; args: unknown[] }> = [];
 
   beforeAll(async () => {
@@ -35,6 +36,7 @@ describe.skipIf(!up)('Admin API routes (Postgres)', () => {
     api = createServices(loadEnv({ ...base, VAULT_PRIVATE_KEY_JWK: JSON.stringify(vault.privateJwk) }), { sql, mailer: consoleMailer(() => undefined) });
     apiApp = createApp(api);
     const adminEnv = loadEnv({ ...base, VAULT_PUBLIC_KEY_JWK: JSON.stringify(vault.publicJwk) });
+    adminEnvForTests = adminEnv;
     const fake = fakeStripe('http://web');
     const recorded = new Proxy(fake, {
       get: (t, m: string) => (typeof (t as any)[m] === 'function' ? (...args: unknown[]) => (payments.push({ method: m, args }), (t as any)[m](...args)) : (t as any)[m]),
@@ -64,6 +66,29 @@ describe.skipIf(!up)('Admin API routes (Postgres)', () => {
     const r1 = await call('POST', '/auth/otp/request', { email }, '');
     return call('POST', '/auth/otp/verify', { email, code: r1.json.dev_code }, '');
   }
+  it('production: every admin call needs Cloudflare Access unless ADMIN_ALLOW_WITHOUT_ACCESS is set', async () => {
+    // Seen live: sign-in worked (the code endpoints are outside the guard) but /me was refused, so the panel bounced
+    // straight back to the sign-in page.
+    const asProd = (allow: boolean) => {
+      return createAdminApp({
+        sql,
+        env: { ...adminEnvForTests, ENV: 'production', ADMIN_ALLOW_WITHOUT_ACCESS: allow },
+        config: api.config,
+        auth: new AuthService(sql, adminEnvForTests.JWT_SECRET, consoleMailer(() => undefined), { exposeDevCode: false }),
+        billing: api.billing,
+        payments: fakeStripe('http://web'),
+        internal: async () => ({}),
+      });
+    };
+    const me = (app: ReturnType<typeof createAdminApp>) => app.request('/admin/v1/me', { headers: { authorization: `Bearer ${owner}` } });
+    const strict = await me(asProd(false));
+    expect(strict.status).toBe(403);
+    expect(((await strict.json()) as { error: { message: string } }).error.message).toMatch(/Cloudflare Access/);
+    const allowed = await me(asProd(true));
+    expect(allowed.status).toBe(200);
+    expect(((await allowed.json()) as { role: string }).role).toBe('owner');
+  });
+
   /** A fresh step-up for `t` (older codes are cleared: the 5-codes-an-hour limit is tested in routes.test.ts). */
   async function stepUp(t = owner, email = 'owner@example.com') {
     await sql`DELETE FROM auth_verifications WHERE identifier = ${email}`;

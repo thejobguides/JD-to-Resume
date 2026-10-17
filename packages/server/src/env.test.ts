@@ -32,6 +32,12 @@ describe('loadEnv', () => {
     expect(loadEnv({ ...PROD }).CONTENT_ENCRYPTION_KEY).toBe(PROD.CONTENT_ENCRYPTION_KEY);
   });
 
+  it('lets the admin API run without Cloudflare Access only when explicitly set to "true"', () => {
+    expect(loadEnv(PROD).ADMIN_ALLOW_WITHOUT_ACCESS).toBe(false);
+    expect(loadEnv({ ...PROD, ADMIN_ALLOW_WITHOUT_ACCESS: '1' }).ADMIN_ALLOW_WITHOUT_ACCESS).toBe(false);
+    expect(loadEnv({ ...PROD, ADMIN_ALLOW_WITHOUT_ACCESS: 'true' }).ADMIN_ALLOW_WITHOUT_ACCESS).toBe(true);
+  });
+
   it('treats `KEY=` from an .env file as unset', () => {
     expect(() => loadEnv({ ...PROD, STRIPE_SECRET_KEY: '' })).toThrow(/STRIPE_SECRET_KEY/);
     const dev = loadEnv({ DATABASE_URL: '', STRIPE_WEBHOOK_SECRET: '  ', VAULT_PUBLIC_KEY_JWK: '' });

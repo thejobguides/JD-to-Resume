@@ -92,7 +92,7 @@ export const adminGuard: MiddlewareHandler<AdminEnv> = async (c, next) => {
     } catch {
       throw new ApiError('unauthenticated', 'Invalid Cloudflare Access token.');
     }
-  } else if (env.ENV === 'production') {
+  } else if (env.ENV === 'production' && !env.ADMIN_ALLOW_WITHOUT_ACCESS) {
     throw new ApiError('forbidden', 'Admin API requires Cloudflare Access in production.');
   }
   const h = c.req.header('authorization');

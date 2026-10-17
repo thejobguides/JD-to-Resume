@@ -188,7 +188,7 @@ function serviceEnv(env: Env, u: ReturnType<typeof urls>) {
       WEB_ORIGIN: u.web,
       ADMIN_ORIGIN: u.admin,
       EXTENSION_ORIGINS: [`chrome-extension://${extensionId(env.EXTENSION_KEY!)}`, ...(env.EXTRA_EXTENSION_ORIGINS ? [env.EXTRA_EXTENSION_ORIGINS] : [])].join(','),
-      ...pick(env, ['EMAIL_FROM', 'CF_ACCESS_TEAM_DOMAIN', 'CF_ACCESS_AUD', 'GOOGLE_OAUTH_CLIENT_ID']),
+      ...pick(env, ['EMAIL_FROM', 'CF_ACCESS_TEAM_DOMAIN', 'CF_ACCESS_AUD', 'ADMIN_ALLOW_WITHOUT_ACCESS', 'GOOGLE_OAUTH_CLIENT_ID']),
     },
     shared: pick(env, ['DATABASE_URL', 'JWT_SECRET', 'INTERNAL_TOKEN', 'MAILBOX_KEY', 'CONTENT_ENCRYPTION_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'RESEND_API_KEY', 'VAULT_PUBLIC_KEY_JWK']),
     // Only the public API holds the vault private key, the config-signing key and the AI provider keys.
