@@ -84,9 +84,16 @@ test('resume → job → score → sign in → tailor → export → coupon chec
 
   // Back in the panel: the account change propagates; tailor with the hosted API (mock AI) over SSE
   await panel.bringToFront();
+  // One click starts exactly one run. The resume effect used to start the same run again; on a slow network the second
+  // request was refused with "An optimization is already running" (seen against the live API).
+  const starts: string[] = [];
+  panel.on('request', (r) => {
+    if (r.method() === 'POST' && new URL(r.url()).pathname === '/v1/optimizations') starts.push(r.url());
+  });
   await panel.getByRole('button', { name: 'Tailor my resume' }).click();
   await panel.getByRole('button', { name: 'Start tailoring' }).click();
   await expect(panel.getByRole('button', { name: 'Continue to export' })).toBeVisible({ timeout: 90_000 });
+  expect(starts, 'optimization start requests for one click').toHaveLength(1);
   await expect(panel.getByText('Verified against your resume').first()).toBeVisible();
   await shot(panel, '3-review');
   const scoreLine = await panel.getByText(/→/).first().textContent();

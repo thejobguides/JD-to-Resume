@@ -157,9 +157,12 @@ export function TailorStep({
         edits: {},
         attested: [],
       };
+      // Mark the run as handled BEFORE storing it: storing re-renders with status 'running', and the resume effect
+      // above would otherwise start the same run a second time (two requests; on a slow network the second one is
+      // refused with "An optimization is already running").
+      resumed.current = true;
       await setTailor(t);
       setLive({ progress: 0.02, step: 'queued' });
-      resumed.current = true;
       await run(t);
     } catch (e) {
       setError(e);
