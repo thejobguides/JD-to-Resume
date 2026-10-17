@@ -11,6 +11,11 @@ const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 
 async function scan(page: Page, name: string) {
   await page.waitForLoadState('networkidle').catch(() => undefined);
+  // axe measures contrast on what is painted at that instant: let entrance animations (fade-ins) and color transitions
+  // finish first, or half-transparent text mid-fade counts as a violation. Endless ones (spinners, skeletons) are skipped.
+  await page
+    .waitForFunction(() => document.getAnimations().every((a) => a.playState !== 'running' || a.effect?.getTiming().iterations === Infinity), undefined, { timeout: 5_000 })
+    .catch(() => undefined);
   const r = await new AxeBuilder({ page }).withTags(TAGS).analyze();
   const found = r.violations.map((v) => `${name} · ${v.id} (${v.impact}) ×${v.nodes.length}: ${v.help} — e.g. ${v.nodes[0]?.target.join(' ')}`);
   return found;

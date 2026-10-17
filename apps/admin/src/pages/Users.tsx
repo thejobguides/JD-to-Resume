@@ -76,7 +76,7 @@ function UserDetail({ id, me, onClose }: { id: string; me: Me; onClose: () => vo
               <div className="text-xs text-slate-500">{u.plan.plan} ({u.plan.source}) · {u.status} · joined {dt(u.created_at)}</div>
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-2 text-xs">
+          <div className="grid grid-cols-2 gap-2 text-xs sm:grid-cols-3">
             <div>Optimizations {u.usage.optimizations.used}/{u.usage.optimizations.limit} · today {u.usage.optimizations.daily_used}/{u.usage.optimizations.daily_limit} · credits {u.usage.optimizations.credits_remaining}</div>
             <div>Analyses {u.usage.analyses.used}/{u.usage.analyses.limit}</div>
             <div>AI {usd(u.usage.ai_budget.used_usd, 3)} / {usd(u.usage.ai_budget.limit_usd)}</div>

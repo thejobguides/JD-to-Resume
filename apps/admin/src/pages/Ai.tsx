@@ -208,7 +208,7 @@ function AddModel({ providers, onClose, onDone }: { providers: Provider[]; onClo
       <ErrorBox error={error} />
       <Field label="Provider"><select className={inputCls} value={provider} onChange={(e) => setProvider(e.target.value)}>{providers.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</select></Field>
       <Field label="Provider model ID"><input className={inputCls} value={modelId} onChange={(e) => setModelId(e.target.value)} placeholder="meta/llama-…" /></Field>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         <Field label="Tier"><select className={inputCls} value={tier} onChange={(e) => setTier(e.target.value)}><option>cheap</option><option>strong</option></select></Field>
         <Field label="Structured output"><select className={inputCls} value={structured} onChange={(e) => setStructured(e.target.value)}><option>json_schema_strict</option><option>json_mode</option><option>none</option></select></Field>
         <Field label="$ per 1M input"><input className={inputCls} value={inP} onChange={(e) => setInP(e.target.value)} /></Field>

@@ -1,14 +1,15 @@
+import { X } from 'lucide-react';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 
 // Small UI kit (Tailwind). Everything is rendered as text — no dangerouslySetInnerHTML anywhere (threat #27).
 
 export function Card({ title, children, actions, className = '' }: { title?: ReactNode; children: ReactNode; actions?: ReactNode; className?: string }) {
   return (
-    <section className={`rounded-lg border border-slate-200 bg-white p-4 shadow-sm ${className}`}>
+    <section className={`min-w-0 rounded-xl border border-slate-200 bg-white p-4 shadow-card sm:p-5 ${className}`}>
       {(title || actions) && (
-        <div className="mb-3 flex items-center justify-between gap-2">
-          {title && <h2 className="text-sm font-semibold text-slate-700">{title}</h2>}
-          {actions && <div className="flex gap-2">{actions}</div>}
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+          {title && <h2 className="text-[15px] font-semibold text-slate-900">{title}</h2>}
+          {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
         </div>
       )}
       {children}
@@ -18,50 +19,54 @@ export function Card({ title, children, actions, className = '' }: { title?: Rea
 
 export function Button({ children, onClick, kind = 'primary', disabled, type = 'button', small }: { children: ReactNode; onClick?: () => void; kind?: 'primary' | 'secondary' | 'danger' | 'ghost'; disabled?: boolean; type?: 'button' | 'submit'; small?: boolean }) {
   const styles = {
-    primary: 'bg-indigo-600 text-white hover:bg-indigo-700',
-    secondary: 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50',
-    danger: 'bg-rose-600 text-white hover:bg-rose-700',
+    primary: 'bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 active:bg-indigo-800',
+    secondary: 'bg-white text-slate-800 border border-slate-300 shadow-sm hover:border-slate-400 hover:bg-slate-50',
+    danger: 'bg-rose-600 text-white shadow-sm hover:bg-rose-700',
     ghost: 'text-indigo-700 hover:bg-indigo-50',
   }[kind];
   return (
-    <button type={type} disabled={disabled} onClick={onClick} className={`${small ? 'px-2 py-1 text-xs' : 'px-3 py-1.5 text-sm'} rounded-md font-medium disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 ${styles}`}>
+    <button type={type} disabled={disabled} onClick={onClick} className={`${small ? 'h-8 px-2.5 text-xs' : 'h-9 px-3.5 text-sm'} inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-lg font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 ${styles}`}>
       {children}
     </button>
   );
 }
 
-export function Stat({ label, value, sub }: { label: string; value: ReactNode; sub?: ReactNode }) {
+export function Stat({ label, value, sub, icon }: { label: string; value: ReactNode; sub?: ReactNode; icon?: ReactNode }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-3">
-      <div className="text-xs uppercase tracking-wide text-slate-500">{label}</div>
-      <div className="mt-1 text-xl font-semibold">{value}</div>
-      {sub && <div className="mt-0.5 text-xs text-slate-500">{sub}</div>}
+    <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4 shadow-card">
+      <div className="flex items-center justify-between gap-2">
+        <div className="text-sm font-medium text-slate-600">{label}</div>
+        {icon && <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-indigo-50 text-indigo-600 [&_svg]:size-4">{icon}</span>}
+      </div>
+      <div className="mt-1.5 text-2xl font-semibold tracking-tight text-slate-900 tabular-nums">{value}</div>
+      {sub && <div className="mt-1 text-xs leading-5 text-slate-500">{sub}</div>}
     </div>
   );
 }
 
 export function Badge({ children, tone = 'slate' }: { children: ReactNode; tone?: 'slate' | 'green' | 'amber' | 'red' | 'indigo' }) {
-  const t = { slate: 'bg-slate-100 text-slate-700', green: 'bg-emerald-100 text-emerald-800', amber: 'bg-amber-100 text-amber-800', red: 'bg-rose-100 text-rose-800', indigo: 'bg-indigo-100 text-indigo-800' }[tone];
-  return <span className={`inline-block rounded px-1.5 py-0.5 text-xs font-medium ${t}`}>{children}</span>;
+  const t = { slate: 'bg-slate-100 text-slate-700 ring-slate-200', green: 'bg-emerald-50 text-emerald-800 ring-emerald-200', amber: 'bg-amber-50 text-amber-800 ring-amber-200', red: 'bg-rose-50 text-rose-800 ring-rose-200', indigo: 'bg-indigo-50 text-indigo-800 ring-indigo-200' }[tone];
+  return <span className={`inline-flex items-center whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${t}`}>{children}</span>;
 }
 
 export function Table<T>({ rows, cols, empty = 'Nothing here yet.', onRow }: { rows: T[]; cols: Array<{ h: string; r: (row: T) => ReactNode; right?: boolean }>; empty?: string; onRow?: (row: T) => void }) {
-  if (!rows.length) return <p className="py-6 text-center text-sm text-slate-500">{empty}</p>;
+  if (!rows.length) return <p className="rounded-lg border border-dashed border-slate-200 py-8 text-center text-sm text-slate-500">{empty}</p>;
+  // Phones: the table keeps its columns and scrolls sideways inside the card instead of squashing them.
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
+    <div className="-mx-4 overflow-x-auto sm:-mx-5">
+      <table className={`w-full text-sm ${cols.length > 3 ? 'min-w-[36rem]' : ''}`}>
         <thead>
-          <tr className="border-b border-slate-200 text-left text-xs uppercase text-slate-500">
+          <tr className="border-y border-slate-200 bg-slate-50/80 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
             {cols.map((c) => (
-              <th key={c.h} className={`px-2 py-1.5 font-medium ${c.right ? 'text-right' : ''}`}>{c.h}</th>
+              <th key={c.h} scope="col" className={`whitespace-nowrap px-4 py-2.5 font-medium first:pl-4 sm:first:pl-5 sm:last:pr-5 ${c.right ? 'text-right' : ''}`}>{c.h}</th>
             ))}
           </tr>
         </thead>
-        <tbody>
+        <tbody className="divide-y divide-slate-100">
           {rows.map((row, i) => (
-            <tr key={i} className={`border-b border-slate-100 ${onRow ? 'cursor-pointer hover:bg-slate-50' : ''}`} onClick={onRow ? () => onRow(row) : undefined}>
+            <tr key={i} className={`transition-colors ${onRow ? 'cursor-pointer hover:bg-indigo-50/40' : 'hover:bg-slate-50/60'}`} onClick={onRow ? () => onRow(row) : undefined}>
               {cols.map((c) => (
-                <td key={c.h} className={`px-2 py-1.5 align-top ${c.right ? 'text-right tabular-nums' : ''}`}>{c.r(row)}</td>
+                <td key={c.h} className={`px-4 py-3 align-top text-slate-700 sm:first:pl-5 sm:last:pr-5 ${c.right ? 'text-right tabular-nums' : ''}`}>{c.r(row)}</td>
               ))}
             </tr>
           ))}
@@ -93,9 +98,14 @@ export function Modal({ open, title, children, onClose }: { open: boolean; title
   }, [open]);
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center bg-slate-900/40 p-6" onClick={onClose}>
-      <div role="dialog" aria-modal="true" className="mt-16 w-full max-w-lg rounded-lg bg-white p-5 shadow-xl" onClick={(e) => e.stopPropagation()}>
-        <h3 className="mb-3 text-base font-semibold">{title}</h3>
+    <div className="fixed inset-0 z-50 flex animate-fade-in items-end justify-center bg-slate-900/50 backdrop-blur-sm sm:items-start sm:p-6" onClick={onClose}>
+      <div role="dialog" aria-modal="true" className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-2xl bg-white p-5 shadow-pop sm:mt-16 sm:rounded-2xl sm:p-6" onClick={(e) => e.stopPropagation()}>
+        <div className="mb-4 flex items-start justify-between gap-3">
+          <h3 className="text-lg font-semibold text-slate-900">{title}</h3>
+          <button type="button" aria-label="Close dialog" className="-m-1.5 inline-flex size-9 shrink-0 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900" onClick={onClose}>
+            <X className="size-5" aria-hidden />
+          </button>
+        </div>
         {children}
       </div>
     </div>
@@ -104,21 +114,21 @@ export function Modal({ open, title, children, onClose }: { open: boolean; title
 
 export function Field({ label, children, hint }: { label: string; children: ReactNode; hint?: ReactNode }) {
   return (
-    <label className="mb-3 block">
-      <span className="mb-1 block text-xs font-medium text-slate-600">{label}</span>
+    <label className="mb-4 block">
+      <span className="mb-1.5 block text-sm font-medium text-slate-800">{label}</span>
       {children}
-      {hint && <span className="mt-1 block text-xs text-slate-500">{hint}</span>}
+      {hint && <span className="mt-1.5 block text-xs text-slate-500">{hint}</span>}
     </label>
   );
 }
 
-export const inputCls = 'w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200';
+export const inputCls = 'w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm placeholder:text-slate-500 transition focus:border-indigo-500 focus:outline-none focus:ring-4 focus:ring-indigo-100 disabled:bg-slate-50';
 
 export function ErrorBox({ error }: { error: unknown }) {
   if (!error) return null;
   const e = error as { message?: string; details?: { errors?: Array<{ path?: string; message: string } | string> } };
   return (
-    <div role="alert" className="mb-3 rounded-md border border-rose-200 bg-rose-50 p-2 text-sm text-rose-800">
+    <div role="alert" className="mb-4 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2.5 text-sm text-rose-800">
       {e.message ?? String(error)}
       {e.details?.errors && (
         <ul className="mt-1 list-disc pl-5">

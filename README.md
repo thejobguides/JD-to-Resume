@@ -13,7 +13,7 @@ The design documents are in [research/](research/). This README covers running a
 | [apps/admin-api](apps/admin-api) | Admin API: roles, step-up, coupons, plans, AI providers and key vault, routing, config lifecycle, analytics, audit |
 | [apps/admin](apps/admin) | Admin panel (React) |
 | [apps/web](apps/web) | Website: home and pricing, checkout return pages, account and billing (Stripe portal), privacy and terms drafts |
-| [packages/*](packages) | Shared logic: `resume` (parse and generate), `job-extraction`, `scoring`, `evidence` (truthfulness gates), `ai` (router, providers, prompts), `config`, `vault`, `db` (SQL migrations), `server` (services) |
+| [packages/*](packages) | Shared logic: `resume` (parse and generate), `job-extraction`, `scoring`, `evidence` (truthfulness gates), `ai` (router, providers, prompts), `config`, `vault`, `db` (SQL migrations), `server` (services), `ui` (shared design tokens, the Inter font and the logo for the website, admin panel and extension) |
 
 ## Run it locally
 

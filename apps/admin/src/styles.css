@@ -1,10 +1,14 @@
 @import 'tailwindcss';
+@import '@jmo/ui/theme.css';
 
-body {
-  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-}
 pre,
 code,
 textarea.mono {
-  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-family: var(--font-mono);
+}
+code {
+  @apply rounded bg-slate-100 px-1 py-0.5 text-[0.85em] text-slate-800;
+}
+pre code {
+  @apply bg-transparent p-0;
 }

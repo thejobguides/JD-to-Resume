@@ -1,3 +1,5 @@
+import { LogoMark } from '@jmo/ui';
+import { Lock } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { login, requestCode } from '../api';
 import { Button, ErrorBox, Field, inputCls } from '../components/ui';
@@ -43,16 +45,17 @@ export function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
+    <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(50rem_30rem_at_10%_-10%,var(--color-indigo-100),transparent_60%),radial-gradient(40rem_25rem_at_100%_110%,var(--color-violet-100),transparent_60%)] bg-slate-50 px-4 py-10">
       <form
-        className="w-full max-w-sm rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
+        className="w-full max-w-sm animate-fade-up rounded-2xl border border-slate-200 bg-white p-6 shadow-pop sm:p-8"
         onSubmit={(e) => {
           e.preventDefault();
           void submit();
         }}
       >
-        <h1 className="mb-1 text-lg font-semibold">Admin sign-in</h1>
-        <p className="mb-4 text-xs text-slate-500">In production this page sits behind Cloudflare Access (SSO + MFA).</p>
+        <LogoMark className="size-11" />
+        <h1 className="mt-5 text-xl font-semibold tracking-tight text-slate-900">Admin sign-in</h1>
+        <p className="mb-6 mt-1 flex items-center gap-1.5 text-xs text-slate-500"><Lock className="size-3.5 shrink-0" aria-hidden />In production this page sits behind Cloudflare Access (SSO + MFA).</p>
         <ErrorBox error={error} />
         <Field label="Email">
           <input className={inputCls} type="email" autoComplete="email" value={email} disabled={sent} onChange={(e) => setEmail(e.target.value)} />
@@ -62,9 +65,11 @@ export function LoginPage() {
             <input className={inputCls} inputMode="numeric" autoComplete="one-time-code" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))} autoFocus />
           </Field>
         )}
-        <Button type="submit" disabled={busy || (sent ? code.length !== 6 : !email.includes('@'))}>
-          {busy ? (sent ? 'Signing in…' : 'Sending…') : sent ? 'Sign in' : 'Send code'}
-        </Button>
+        <div className="mt-2 [&>button]:h-10 [&>button]:w-full">
+          <Button type="submit" disabled={busy || (sent ? code.length !== 6 : !email.includes('@'))}>
+            {busy ? (sent ? 'Signing in…' : 'Sending…') : sent ? 'Sign in' : 'Send code'}
+          </Button>
+        </div>
         {slow && (
           <p role="status" className="mt-3 text-xs text-slate-500">
             The server is waking up after being idle. This can take up to a minute; please wait.

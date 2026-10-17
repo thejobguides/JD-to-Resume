@@ -5,10 +5,14 @@ import type { ReactNode } from 'react';
 
 function Draft({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <article className="prose-legal mx-auto max-w-3xl px-4 py-12">
-      <p className="mb-4 rounded-md bg-amber-50 p-2 text-xs text-amber-800">Draft — pending legal review before launch.</p>
-      <h1 className="text-3xl font-bold">{title}</h1>
-      {children}
+    <article>
+      <header className="border-b border-slate-200 bg-gradient-to-b from-indigo-50/70 to-white">
+        <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
+          <p className="inline-flex rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-800 ring-1 ring-amber-200">Draft — pending legal review before launch.</p>
+          <h1 className="mt-4 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">{title}</h1>
+        </div>
+      </header>
+      <div className="prose-legal mx-auto max-w-3xl px-4 pb-20 pt-4 sm:px-6">{children}</div>
     </article>
   );
 }

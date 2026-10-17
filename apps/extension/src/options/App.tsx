@@ -1,5 +1,7 @@
 import type { PlanId } from '@jmo/shared';
 import { uuidv7 } from '@jmo/shared';
+import { cx, LogoMark } from '@jmo/ui';
+import { CreditCard, History, KeyRound, type LucideIcon, ShieldCheck, UserRound } from 'lucide-react';
 import { type ReactNode, useEffect, useState } from 'react';
 import * as api from '../lib/api';
 import { GOOGLE_ENABLED } from '../lib/api';
@@ -13,12 +15,12 @@ import { Badge, Button, Card, ErrorText, Field, inputCls, Note, Spinner } from '
 
 type Tab = 'account' | 'plans' | 'byok' | 'history' | 'privacy';
 const PLAN_NAMES: Record<string, string> = { free: 'Free', pro_monthly: 'Pro (monthly)', pro_quarterly: 'Pro (quarterly)', byok_annual: 'Own key (annual)', credit_pack: 'Credit pack' };
-const TABS: Array<{ id: Tab; label: string }> = [
-  { id: 'account', label: 'Account' },
-  { id: 'plans', label: 'Plans' },
-  { id: 'byok', label: 'Your own AI key' },
-  { id: 'history', label: 'History' },
-  { id: 'privacy', label: 'Privacy & data' },
+const TABS: Array<{ id: Tab; label: string; icon: LucideIcon }> = [
+  { id: 'account', label: 'Account', icon: UserRound },
+  { id: 'plans', label: 'Plans', icon: CreditCard },
+  { id: 'byok', label: 'Your own AI key', icon: KeyRound },
+  { id: 'history', label: 'History', icon: History },
+  { id: 'privacy', label: 'Privacy & data', icon: ShieldCheck },
 ];
 
 export function App() {
@@ -28,27 +30,45 @@ export function App() {
     history.replaceState(null, '', `#${tab}`);
   }, [tab]);
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
-      <h1 className="text-xl font-semibold">Job Match Optimizer</h1>
-      <p className="mb-4 text-xs text-slate-500">Settings · version {__EXT_VERSION__}</p>
-      <nav className="mb-4 flex flex-wrap gap-1">
-        {TABS.map((t) => (
-          <button key={t.id} onClick={() => setTab(t.id)} className={`rounded-md px-3 py-1.5 text-sm ${tab === t.id ? 'bg-indigo-600 text-white' : 'bg-white text-slate-700 hover:bg-slate-100'}`}>
-            {t.label}
-          </button>
-        ))}
-      </nav>
-      {account.loading ? (
-        <Spinner label="Loading…" />
-      ) : (
-        <>
-          {tab === 'account' && <AccountTab account={account} />}
-          {tab === 'plans' && <PlansTab account={account} />}
-          {tab === 'byok' && <ByokTab account={account} />}
-          {tab === 'history' && <HistoryTab />}
-          {tab === 'privacy' && <PrivacyTab account={account} />}
-        </>
-      )}
+    <div className="min-h-screen bg-slate-50">
+      <header className="border-b border-slate-200 bg-white">
+        <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-4 sm:px-6">
+          <LogoMark className="size-9 shrink-0" />
+          <div className="min-w-0">
+            <h1 className="truncate text-lg font-semibold tracking-tight text-slate-900">Job Match Optimizer</h1>
+            <p className="text-xs text-slate-500">Settings · version {__EXT_VERSION__}</p>
+          </div>
+        </div>
+      </header>
+      <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 md:grid md:grid-cols-[13.5rem_minmax(0,1fr)] md:gap-8 md:py-8">
+        {/* Phones: a row of pills that scrolls sideways; wider screens: a vertical menu. */}
+        <nav aria-label="Settings sections" className="-mx-4 mb-5 flex gap-1.5 overflow-x-auto px-4 pb-1 md:sticky md:top-6 md:mx-0 md:mb-0 md:flex-col md:self-start md:overflow-visible md:px-0">
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              aria-current={tab === t.id ? 'page' : undefined}
+              onClick={() => setTab(t.id)}
+              className={cx('flex shrink-0 items-center gap-2.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-indigo-600', tab === t.id ? 'bg-white text-indigo-700 shadow-card ring-1 ring-slate-200' : 'text-slate-600 hover:bg-white hover:text-slate-900')}
+            >
+              <t.icon aria-hidden className={cx('size-4 shrink-0', tab === t.id ? 'text-indigo-600' : 'text-slate-500')} />
+              {t.label}
+            </button>
+          ))}
+        </nav>
+        <main className="min-w-0 space-y-4">
+          {account.loading ? (
+            <Spinner label="Loading…" />
+          ) : (
+            <>
+              {tab === 'account' && <AccountTab account={account} />}
+              {tab === 'plans' && <PlansTab account={account} />}
+              {tab === 'byok' && <ByokTab account={account} />}
+              {tab === 'history' && <HistoryTab />}
+              {tab === 'privacy' && <PrivacyTab account={account} />}
+            </>
+          )}
+        </main>
+      </div>
     </div>
   );
 }

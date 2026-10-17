@@ -1,15 +1,20 @@
 @import 'tailwindcss';
+@import '@jmo/ui/theme.css';
 
-body {
-  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+html {
+  scroll-padding-top: 5rem; /* section links land below the sticky header */
 }
+
 .prose-legal h2 {
-  @apply mt-6 mb-2 text-lg font-semibold;
+  @apply mt-10 mb-3 text-xl font-semibold tracking-tight text-slate-900;
 }
 .prose-legal p,
 .prose-legal li {
-  @apply text-sm leading-6 text-slate-700;
+  @apply text-[15px] leading-7 text-slate-700;
 }
 .prose-legal ul {
-  @apply list-disc space-y-1 pl-5;
+  @apply list-disc space-y-2 pl-5 marker:text-indigo-400;
+}
+.prose-legal b {
+  @apply font-semibold text-slate-900;
 }

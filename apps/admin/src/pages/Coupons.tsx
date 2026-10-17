@@ -121,19 +121,19 @@ function CreateCoupon({ me, onClose, onCreated }: { me: Me; onClose: () => void;
     <Modal open title="New coupon" onClose={onClose}>
       <div className="max-h-[75vh] overflow-y-auto pr-1">
         <ErrorBox error={error} />
-        <div className="mb-3 flex gap-3 text-sm">
+        <div className="mb-3 flex flex-wrap gap-x-4 gap-y-2 text-sm">
           <label><input type="radio" checked={mode === 'single'} onChange={() => setMode('single')} /> One code</label>
           <label><input type="radio" checked={mode === 'bulk'} onChange={() => setMode('bulk')} /> Bulk single-use codes</label>
         </div>
         {mode === 'single' ? (
           <Field label="Code" hint="Leave empty to generate one (no 0/O/1/I/L)."><input className={inputCls} value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="LAUNCH30" /></Field>
         ) : (
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             <Field label="How many codes"><input type="number" className={inputCls} value={count} onChange={(e) => setCount(Number(e.target.value))} /></Field>
             <Field label="Prefix"><input className={inputCls} value={prefix} onChange={(e) => setPrefix(e.target.value.toUpperCase())} /></Field>
           </div>
         )}
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <Field label="Name (internal)"><input className={inputCls} value={name} onChange={(e) => setName(e.target.value)} placeholder="Launch week — Reddit post" /></Field>
           <Field label="Campaign"><input className={inputCls} value={campaign} onChange={(e) => setCampaign(e.target.value)} placeholder="launch-2026-10" /></Field>
         </div>
@@ -154,13 +154,13 @@ function CreateCoupon({ me, onClose, onCreated }: { me: Me; onClose: () => void;
             </div>
           );
         })}
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
           {mode === 'single' && <Field label="Total uses" hint="1 = single-use code; empty = unlimited"><input className={inputCls} value={total} onChange={(e) => setTotal(e.target.value.replace(/\D/g, ''))} /></Field>}
           <Field label="Per user"><input type="number" className={inputCls} value={perUser} min={1} max={5} onChange={(e) => setPerUser(Number(e.target.value))} /></Field>
           <Field label="Stop after $ discount"><input className={inputCls} value={budget} onChange={(e) => setBudget(e.target.value.replace(/[^\d.]/g, ''))} /></Field>
         </div>
         <label className="mb-3 block text-sm"><input type="checkbox" checked={newOnly} onChange={(e) => setNewOnly(e.target.checked)} /> New customers only</label>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <Field label="Valid from"><input type="datetime-local" className={inputCls} value={from} onChange={(e) => setFrom(e.target.value)} /></Field>
           <Field label="Valid until"><input type="datetime-local" className={inputCls} value={until} onChange={(e) => setUntil(e.target.value)} /></Field>
         </div>
@@ -203,7 +203,7 @@ function CouponDetail({ id, me, onClose, onError }: { id: string; me: Me; onClos
           <div>Status <Badge>{c.status}</Badge> · {c.code_count} code(s) · terms {c.editable_terms ? 'editable (not redeemed yet)' : 'frozen (redeemed)'}</div>
           <pre className="overflow-x-auto rounded bg-slate-50 p-2 text-xs">{JSON.stringify(c.rules, null, 2)}</pre>
           {stats.data && (
-            <div className="grid grid-cols-3 gap-2 text-xs">
+            <div className="grid grid-cols-2 gap-2 text-xs sm:grid-cols-3">
               <div>Redeemed {stats.data.redemptions} · reserved {stats.data.reserved} · refunded {stats.data.refunded}</div>
               <div>Discount {usd((stats.data.discount_minor ?? 0) / 100)} · net {usd((stats.data.net_minor ?? 0) / 100)}</div>
               <div>Full-price renewals {stats.data.full_price_renewals}/{stats.data.subscriptions} · AI cost {usd(stats.data.ai_cost_usd, 3)}</div>

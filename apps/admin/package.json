@@ -10,8 +10,10 @@
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
+    "@jmo/ui": "workspace:*",
     "@jmo/vault": "workspace:*",
     "@tanstack/react-query": "5.104.0",
+    "lucide-react": "1.59.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "recharts": "3.10.1"

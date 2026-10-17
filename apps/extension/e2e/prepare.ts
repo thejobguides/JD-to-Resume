@@ -33,8 +33,9 @@ await createCoupon(
 );
 // Every spec signs in from the same local address, so the per-address burst limits (20 sign-in calls a minute)
 // would throttle a fast run. Raised for the e2e database only; production limits are untouched.
-const limits = structuredClone((await getActive(sql, 'limits', 'production'))!.data) as { burst_per_minute: Record<string, number> };
+const limits = structuredClone((await getActive(sql, 'limits', 'production'))!.data) as { burst_per_minute: Record<string, number>; otp_per_hour: number };
 limits.burst_per_minute = { ...limits.burst_per_minute, auth: 600, reads: 600, coupons: 200, ai: 200, optimizations: 60 };
+limits.otp_per_hour = 10; // the admin owner signs in from several specs (the configured maximum)
 const draft = await createDraft(sql, 'limits', 'production', limits, 'e2e: higher burst limits for one shared test address', { id: owner!.id, role: 'owner' });
 await activateVersion(sql, draft.id, { id: owner!.id, role: 'owner' }, { reason: 'e2e test environment setup' });
 await sql.end({ timeout: 1 });

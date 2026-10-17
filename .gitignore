@@ -23,3 +23,7 @@ playwright-report/
 
 # Extension zips built by pnpm deploy:cloudflare
 apps/extension/release/
+
+# Chrome "Pack extension" output: the .pem is the extension's private signing key; never commit it
+*.pem
+*.crx

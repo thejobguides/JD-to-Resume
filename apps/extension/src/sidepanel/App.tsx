@@ -1,4 +1,6 @@
 import { CONSENT_VERSION } from '@jmo/shared';
+import { LogoMark } from '@jmo/ui';
+import { Settings } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { applyAndRescore, score } from '../lib/engine';
 import type { LoadedResume } from '../lib/files';
@@ -85,13 +87,18 @@ function Main({ account }: { account: Account }) {
   const outdated = account.config && cmp(__EXT_VERSION__, account.config.min_extension_version) < 0;
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-10 border-b border-slate-200 bg-white px-3 pt-2">
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-semibold">Job Match Optimizer</span>
-          <span className="flex items-center gap-2">
-            {account.signedIn ? <Badge tone="indigo">{planLabel(account)}</Badge> : <button className="text-xs text-indigo-700" onClick={() => void chrome.runtime.openOptionsPage()}>Sign in</button>}
-            <button title="Settings" aria-label="Settings" className="text-slate-500 hover:text-slate-800" onClick={() => void chrome.runtime.openOptionsPage()}>⚙</button>
+    <div className="flex min-h-screen flex-col bg-slate-50">
+      <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/95 px-3 pt-2.5 backdrop-blur">
+        <div className="flex items-center justify-between gap-2">
+          <span className="flex min-w-0 items-center gap-2 text-sm font-semibold tracking-tight text-slate-900">
+            <LogoMark className="size-6 shrink-0" />
+            <span className="truncate">Job Match Optimizer</span>
+          </span>
+          <span className="flex shrink-0 items-center gap-1">
+            {account.signedIn ? <Badge tone="indigo">{planLabel(account)}</Badge> : <button className={`rounded-md px-2 py-1 text-xs font-semibold text-indigo-700 hover:bg-indigo-50 ${focusRing}`} onClick={() => void chrome.runtime.openOptionsPage()}>Sign in</button>}
+            <button title="Settings" aria-label="Settings" className={`inline-flex size-8 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-800 ${focusRing}`} onClick={() => void chrome.runtime.openOptionsPage()}>
+              <Settings className="size-4" aria-hidden />
+            </button>
           </span>
         </div>
         <nav aria-label="Steps" className="mt-2 flex text-[11px]">
@@ -101,7 +108,7 @@ function Main({ account }: { account: Account }) {
               disabled={!enabled[s.id]}
               aria-current={step === s.id ? 'step' : undefined}
               onClick={() => setStep(s.id)}
-              className={`flex-1 border-b-2 pb-1.5 ${focusRing} ${step === s.id ? 'border-indigo-600 font-semibold text-indigo-700' : 'border-transparent text-slate-600'} disabled:text-slate-300`}
+              className={`flex-1 border-b-2 pb-2 pt-1 font-medium transition-colors ${focusRing} ${step === s.id ? 'border-indigo-600 font-semibold text-indigo-700' : 'border-transparent text-slate-600 hover:text-slate-900'} disabled:text-slate-400 disabled:hover:text-slate-400`}
             >
               {i + 1}. {s.label}
             </button>
@@ -156,17 +163,20 @@ function cmp(a: string, b: string): number {
 function Consent({ onAccept }: { onAccept: () => void }) {
   const [ok, setOk] = useState(false);
   return (
-    <div className="space-y-3 p-4">
-      <h1 className="text-base font-semibold">Before you start</h1>
-      <ul className="list-disc space-y-2 pl-4 text-xs text-slate-700">
+    <div className="min-h-screen space-y-4 bg-slate-50 p-4">
+      <div className="flex items-center gap-2.5">
+        <LogoMark className="size-9" />
+        <h1 className="text-base font-semibold tracking-tight text-slate-900">Before you start</h1>
+      </div>
+      <ul className="list-disc space-y-2.5 rounded-xl border border-slate-200 bg-white p-4 pl-8 text-xs leading-5 text-slate-700 shadow-card marker:text-indigo-500">
         <li><b>Your resume stays on this device.</b> It’s read, scored and exported here, stored encrypted, and never uploaded as a file.</li>
         <li><b>When you use AI features</b> (tailoring, or refining a match), we send the parts needed — your experience, skills and summary, with your name and contact details removed — to our server and an AI provider that doesn’t train on it. Nothing is kept after it’s processed.</li>
         <li><b>Job text</b> you analyze is sent to our server so requirements can be extracted (and cached, without any link to you).</li>
         <li><b>Nothing is invented.</b> Suggestions may only use facts already in your resume, and you review every change.</li>
         <li><b>The match score is our estimate</b>, not an ATS score. No tool can see how a specific employer ranks you.</li>
       </ul>
-      <label className="flex items-start gap-2 text-xs">
-        <input type="checkbox" className="mt-0.5" checked={ok} onChange={(e) => setOk(e.target.checked)} />
+      <label className="flex cursor-pointer items-start gap-2.5 rounded-xl border border-slate-200 bg-white p-3 text-xs leading-5 shadow-card">
+        <input type="checkbox" className="mt-0.5 size-4 accent-indigo-600" checked={ok} onChange={(e) => setOk(e.target.checked)} />
         <span>I understand. (Details in the <a className="text-indigo-700 underline" href={`${__WEB_URL__}/privacy`} target="_blank" rel="noreferrer">privacy notice</a>.)</span>
       </label>
       <Button full disabled={!ok} onClick={onAccept}>Continue</Button>
